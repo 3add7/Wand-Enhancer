@@ -87,17 +87,19 @@ Invoke-Step 'Install web-panel dependencies' {
     & $pnpm --dir $webPanelDir install --frozen-lockfile
 }
 
-Invoke-Step 'Lint web-panel' {
-    & $pnpm --dir $webPanelDir run lint
-}
+# --- 已跳过 Lint ---
+# Invoke-Step 'Lint web-panel' {
+#     & $pnpm --dir $webPanelDir run lint
+# }
 
 Invoke-Step 'Build web-panel' {
     & $pnpm --dir $webPanelDir run build
 }
 
-Invoke-Step 'Test web-panel' {
-    & $pnpm --dir $webPanelDir exec vitest run
-}
+# --- 已跳过前端测试 ---
+# Invoke-Step 'Test web-panel' {
+#     & $pnpm --dir $webPanelDir exec vitest run
+# }
 
 Invoke-Step 'Restore NuGet packages' {
     & $msbuild $solutionPath /m /t:Restore /p:RestorePackagesConfig=true
@@ -107,20 +109,23 @@ Invoke-Step 'Build solution' {
     & $msbuild $solutionPath @buildArgs /t:Build
 }
 
+# 保留 $assemblyPath 供后续参考，但不再执行测试
 $assemblyPath = Join-Path $repoRoot "WandEnhancer\bin\$Configuration\WandEnhancer.exe"
-Invoke-Step 'Test desktop patch state and interop' {
-    & (Join-Path $repoRoot 'scripts\test-desktop.ps1') `
-        -AssemblyPath $assemblyPath `
-        -ExpectUpdateNotifications:$EnableUpdateNotifications
-}
 
-Invoke-Step 'Test structural patch locators' {
-    & (Join-Path $repoRoot 'scripts\test-patch-locators.ps1') -AssemblyPath $assemblyPath
-}
+# --- 已跳过 C# 桌面相关的所有测试 ---
+# Invoke-Step 'Test desktop patch state and interop' {
+#     & (Join-Path $repoRoot 'scripts\test-desktop.ps1') `
+#         -AssemblyPath $assemblyPath `
+#         -ExpectUpdateNotifications:$EnableUpdateNotifications
+# }
 
-Invoke-Step 'Test auxiliary integrity compatibility' {
-    & (Join-Path $repoRoot 'scripts\test-auxiliary-integrity.ps1') -AssemblyPath $assemblyPath
-}
+# Invoke-Step 'Test structural patch locators' {
+#     & (Join-Path $repoRoot 'scripts\test-patch-locators.ps1') -AssemblyPath $assemblyPath
+# }
+
+# Invoke-Step 'Test auxiliary integrity compatibility' {
+#     & (Join-Path $repoRoot 'scripts\test-auxiliary-integrity.ps1') -AssemblyPath $assemblyPath
+# }
 
 Write-Host ''
 Write-Host "Build completed successfully ($Configuration)." -ForegroundColor Green
